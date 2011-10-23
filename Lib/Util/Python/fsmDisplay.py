@@ -23,8 +23,8 @@ class fsmDisplay:
 	def __init__(self, fsmInput, naoTeam, naoID):
 		
 		self.naoTeam = naoTeam
-                self.naoID = naoID 
-
+		self.naoID = naoID 
+	
 		self.root = Tk()
 		self.root.title("Team "+self.naoTeam+" player "+self.naoID)
 
@@ -54,9 +54,9 @@ class fsmDisplay:
 
 		#Create buttons on window
 		self.draw_fsm()
-
+	
 		#create event that is constantly renewed to get new data
-                self.root.after(0, self.update)
+		self.root.after(0, self.update)
 
 		self.root.mainloop()
 
@@ -64,11 +64,14 @@ class fsmDisplay:
 
 		#highlight current state
 		self.highlight_current_state()
-
+		
+		#update buttons' statuses
+		button_status()
+	
 		#create event that is constantly renewed to get new data
-                self.root.after(200, self.update)
+		self.root.after(200, self.update)
 
-            
+		
 	def draw_fsm(self):
 		#create attribute to hold buttons
 		self.stateB = [None] * len(self.states)
@@ -79,10 +82,12 @@ class fsmDisplay:
 			row_num = 0
 			self.stateB[fsm] = [0] * len(self.states[fsm])
 			for state in range(len(self.states[fsm])):
-				self.stateB[fsm][state] = Button(self.background, text=str(self.states[fsm][state]), width=20, background="white")
+				self.stateB[fsm][state] = Button(self.background, text=str(self.states[fsm][state]), width=20, background="white", disabledforeground='grey')
 				self.stateB[fsm][state].grid(row=row_num, column=col_num)
 				#bind button to a click event and pass in fsm and state info
 				self.stateB[fsm][state].bind('<Button-1>', self.makeEventHandler(fsm, state))
+				#configure button's state, at first disabled
+				self.stateB[fsm][state].config(state=DISABLED)
 				row_num += 1
 			col_num += 1
 	
@@ -99,13 +104,24 @@ class fsmDisplay:
 
 		#Change the memory segment
 		if fsm is 0:
-			self.gcmFSM.set_game_state(newState)
+			print "Game FSM cannot be altered"
 		elif fsm is 1:
 			self.gcmFSM.set_body_state(newState)
 		elif fsm is 2:
-			self.gcmFSM.set_head_state(newState)
+			print "Head FSM cannot be altered"
 		else:
 			print "Attempt to get state from undefined FSM"
+
+	def button_status(self):
+		#If Body fsm is in state bodyControl
+		if self.currentState[1] == "bodyControl":
+			#Make sure the buttons in bodyfsm are in active state
+			for state in range(len(self.stateB[1])):
+				self.stateB[1][state].config(state=NORMAL)
+		else:
+			#make sure buttons are disabled
+			for state in range(len(selt.stateB[1])):
+				self.stateB[1][state].config(state=DISABLED)
 
 	def highlight_current_state(self):
 		#Find current states and highlight them
