@@ -34,6 +34,7 @@ shared.fsm.game_state = '';
 
 util.init_shm_segment(getfenv(), _NAME, shared, shsize);
 
+
 -- initialize player id
 set_team_player_id(Config.game.playerID);
 Speak.talk('Player ID '..Config.game.playerID);
@@ -46,21 +47,4 @@ set_game_state(0);
 function in_penalty()
   return get_game_penalty()[get_team_player_id()] > 0;
 end
-
-function get_body_state()
-  return get_fsm_body_state();
-end
-
-function get_head_state()
-  return get_fsm_head_state();
-end
-
-function get_motion_state()
-  return get_fsm_motion_state();
-end
-
-function get_game_state()
-  return get_fsm_game_state();
-end
-
 

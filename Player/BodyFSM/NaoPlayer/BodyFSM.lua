@@ -17,19 +17,18 @@ require('bodyPosition')
 require('bodyObstacle')
 require('bodyObstacleAvoid')
 
-sm = fsm.new(bodyIdle); -- no mess
-sm:add_state(bodyStart); -- no mess
-sm:add_state(bodyStop); -- no mess
-sm:add_state(bodyReady); -- no mess
-sm:add_state(bodyControl);
+sm = fsm.new(bodyIdle);
+sm:add_state(bodyStart);
+sm:add_state(bodyStop);
+sm:add_state(bodyReady);
 sm:add_state(bodySearch);
 sm:add_state(bodyApproach);
 sm:add_state(bodyKick);
 sm:add_state(bodyOrbit);
 sm:add_state(bodyGotoCenter);
 sm:add_state(bodyPosition);
-sm:add_state(bodyObstacle); -- does this even do anything?
-sm:add_state(bodyObstacleAvoid); -- does this even do anything?
+sm:add_state(bodyObstacle);
+sm:add_state(bodyObstacleAvoid);
 
 sm:set_transition(bodyStart, 'done', bodyPosition);
 
@@ -69,7 +68,7 @@ sm:set_transition(bodyApproach, 'fall', bodyPosition);
 sm:set_transition(bodyKick, 'fall', bodyPosition);
 
 -- set state debug handle to shared memory settor
--- sm:set_state_debug_handle(gcm.set_fsm_body_state);
+sm:set_state_debug_handle(gcm.set_fsm_body_state);
 
 
 function entry()

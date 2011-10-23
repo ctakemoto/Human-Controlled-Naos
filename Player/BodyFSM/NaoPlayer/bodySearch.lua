@@ -1,48 +1,32 @@
 module(..., package.seeall);
 
-require('Body')
-require('walk')
-require('vector')
+require('gcm')
 require('Config')
-require('wcm')
-
-t0 = 0;
-timeout = 10.0;
-
--- turn velocity
-vSpin = 0.3;
-
-direction = 1;
 
 
 function entry()
-  print(_NAME.." entry");
-
-  t0 = Body.get_time();
-
-  -- set turn direction to last known ball position
-  ball = wcm.get_ball();
-  if (ball.y > 0) then
-    direction = 1;
-  else
-    direction = -1;
-  end
-end
+  print(_NAME.." forced entry");
 
 function update()
-  local t = Body.get_time();
+  stateChange = gcm.get_fsm_body_state();
 
-  ball = wcm.get_ball();
-
-  -- search/spin until the ball is found
-  walk.set_velocity(0, 0, direction*vSpin);
-
-  if (t - ball.t < 0.1) then
-    return "ball";
+  if (stateChange = 'bodySearch') then
+    return "search2search";
   end
-  if (t - t0 > timeout) then
-    return "timeout";
+  if (stateChange = 'bodyApproach') then
+    return "approach2approach";
   end
+  if (stateChange = 'bodyKick') then
+    return "kick2kick";
+  end
+  if (stateChange = 'bodyOrbit') then 
+    return "orbit2orbit";
+  end
+  if (stateChange = 'bodyCenter') then
+    return "center2center";
+  end
+  if (stateChange = 'bodyPosition') then
+    return "position2position
 end
 
 function exit()

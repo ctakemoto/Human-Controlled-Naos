@@ -23,8 +23,8 @@ class fsmDisplay:
 	def __init__(self, fsmInput, naoTeam, naoID):
 		
 		self.naoTeam = naoTeam
-                self.naoID = naoID 
-
+		self.naoID = naoID 
+	
 		self.root = Tk()
 		self.root.title("Team "+self.naoTeam+" player "+self.naoID)
 
@@ -54,9 +54,9 @@ class fsmDisplay:
 
 		#Create buttons on window
 		self.draw_fsm()
-
+	
 		#create event that is constantly renewed to get new data
-                self.root.after(0, self.update)
+		self.root.after(0, self.update)
 
 		self.root.mainloop()
 
@@ -66,9 +66,9 @@ class fsmDisplay:
 		self.highlight_current_state()
 
 		#create event that is constantly renewed to get new data
-                self.root.after(200, self.update)
+		self.root.after(200, self.update)
 
-            
+	
 	def draw_fsm(self):
 		#create attribute to hold buttons
 		self.stateB = [None] * len(self.states)
@@ -98,12 +98,8 @@ class fsmDisplay:
 		newState = self.shm2array(self.states[fsm][state])
 
 		#Change the memory segment
-		if fsm is 0:
-			self.gcmFSM.set_game_state(newState)
-		elif fsm is 1:
+		if fsm is 1:
 			self.gcmFSM.set_body_state(newState)
-		elif fsm is 2:
-			self.gcmFSM.set_head_state(newState)
 		else:
 			print "Attempt to get state from undefined FSM"
 

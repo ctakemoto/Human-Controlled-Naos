@@ -1,38 +1,8 @@
 module(..., package.seeall);
 
-require('Body')
-require('walk')
-require('vector')
+require('gcm')
 require('util')
 require('Config')
-
-require('wcm')
-
-t0 = 0;
-timeout = 10.0;
-
--- maximum walk velocity
-maxStep = 0.04;
-
--- ball detection timeout
-tLost = 3.0;
-
--- kick target threshold
---xKick = 0.22;
---xTarget = 0.16;
-xKick = 0.13;
-xTarget = 0.09;
-print('xKick')
-print(xKick)
-
-yKickMin = 0.02;
-yKickMax = 0.05;
-
--- maximum ball distance threshold
-rFar = 0.45;
-
--- alignment
-thAlign = 10.0*math.pi/180.0;
 
 
 function entry()
@@ -42,42 +12,25 @@ function entry()
 end
 
 function update()
-  local t = Body.get_time();
+  stateChange = gcm.get_fsm_body_state();
 
-  -- get ball position
-  ball = wcm.get_ball();
-  ballR = math.sqrt(ball.x^2 + ball.y^2);
-  --print('ball: '..ball.x..', '..ball.y);
-  --print('ballR '..ballR);
-
-  -- calculate walk velocity based on ball position
-  vStep = vector.new({0,0,0});
-  vStep[1] = .5*(ball.x - xTarget);
-  vStep[2] = .75*(ball.y - util.sign(ball.y)*0.05);
-  scale = math.min(maxStep/math.sqrt(vStep[1]^2+vStep[2]^2), 1);
-  vStep = scale*vStep;
-
-  ballA = math.atan2(ball.y - math.max(math.min(ball.y, 0.05), -0.05), ball.x+0.10);
-  vStep[3] = 0.5*ballA;
-  walk.set_velocity(vStep[1],vStep[2],vStep[3]);
-
-  attackBearing, daPost = wcm.get_attack_bearing();
-
-  if (t - ball.t > tLost) then
-    return "ballLost";
+  if (stateChange == _Name) then
+    return 'approach2approach';
   end
-  if (t - t0 > timeout) then
-    return "timeout";
+  if (stateChange == 'bodySearch') then
+    return "approach2search";
   end
-  if (ballR > rFar) then
-    return "ballFar";
+  if (stateChange == 'bodyKick') then
+    return "approach2kick";
   end
-  if (math.abs(attackBearing) > thAlign) then
-    return 'ballAlign';
+  if (stateChange == 'bodyOrbit') then
+    return 'approach2orbit';
   end
-  if ((ball.x < xKick) and (math.abs(ball.y) < yKickMax) and
-      (math.abs(ball.y) > yKickMin)) then
-    return "kick";
+  if (stateChange == 'bodyCenter') then
+    return 'approach2center';
+  end
+  if (stateChange == 'bodyPosition') then
+    return 'approach2position';
   end
 end
 

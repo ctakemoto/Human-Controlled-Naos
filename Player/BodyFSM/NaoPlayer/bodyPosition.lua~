@@ -10,13 +10,7 @@ function entry()
 end
 
 function update()
-  changeState = gcm.get_body_state()
-  if (changeState == _NAME) then
-    return "position2position";
-  end
-  if (changeState == --NEED NAME!!!! how? ) then
-    return "position2position";
-  end
+  if (
 end
 
 function exit()
