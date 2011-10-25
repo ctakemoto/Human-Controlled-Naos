@@ -23,15 +23,26 @@ class fsmDisplay:
 	def __init__(self, fsmInput, naoTeam, naoID):
 		
 		self.naoTeam = naoTeam
-		self.naoID = naoID 
+		self.naoID = naoID
+		
+		#Goalie has a different fsm
+		if int(self.naoID) is 1:
+			self.role = 'Goalie'
+			fsmInput = fsmInput[1]
+			self.states = [None] * 3
+			for fsm in range(len(fsmInput)):
+				self.states[fsm] = fsmInput[fsm]
+		elif int(self.naoID) > 1:
+			#Other player #s start from 1 in webots
+			webots_num = int(self.naoID) - 1
+			self.role = 'Player'+str(webots_num)
+			fsmInput = fsmInput[0]
+			self.states = [None] * 3
+			for fsm in range(len(fsmInput)):
+				self.states[fsm] = fsmInput[fsm]
 	
 		self.root = Tk()
-		self.root.title("Team "+self.naoTeam+" player "+self.naoID)
-
-		self.states = [None] * 3
-
-		for fsm in range(len(fsmInput)):
-			self.states[fsm] = fsmInput[fsm]
+		self.root.title("Team "+self.naoTeam+self.role)
 
 		self.background = Canvas(self.root, width=500, height=300) 
 		self.background.grid(row=0, column=0)
@@ -45,11 +56,9 @@ class fsmDisplay:
 		gcmName = "gcmFsm" + str(self.naoTeam) + str(self.naoID) + usr
 		self.gcmFSM = shm.ShmWrapper(gcmName)
 
-		#get current game state
-		self.currentState[0] = self.shm2string(self.gcmFSM.get_game_state())
 		#get current body state
+		self.currentState[0] = self.shm2string(self.gcmFSM.get_game_state())
 		self.currentState[1] = self.shm2string(self.gcmFSM.get_body_state())
-		#get current head state
 		self.currentState[2] = self.shm2string(self.gcmFSM.get_head_state())
 
 		#Create buttons on window
@@ -66,7 +75,7 @@ class fsmDisplay:
 		self.highlight_current_state()
 		
 		#update buttons' statuses
-		button_status()
+		#self.button_status()
 	
 		#create event that is constantly renewed to get new data
 		self.root.after(200, self.update)
@@ -86,8 +95,10 @@ class fsmDisplay:
 				self.stateB[fsm][state].grid(row=row_num, column=col_num)
 				#bind button to a click event and pass in fsm and state info
 				self.stateB[fsm][state].bind('<Button-1>', self.makeEventHandler(fsm, state))
-				#configure button's state, at first disabled
-				self.stateB[fsm][state].config(state=DISABLED)
+				#All states not in body, and cetain states should be disabled
+				if fsm != 1 or self.states[fsm][state] == 'bodyStart' or self.states[fsm][state] == 'bodyReady' or self.states[fsm][state] == 'bodyIdle' or self.states[fsm][state] == 'bodyStop':
+					#configure button's state
+					self.stateB[fsm][state].config(state=DISABLED)
 				row_num += 1
 			col_num += 1
 	
@@ -95,7 +106,8 @@ class fsmDisplay:
 	#event, fsm, and state can be passed into change State		  
 	def makeEventHandler(self, fsm, state):
 		def stateEvent(event):
-			self.changeState(fsm, state, event)
+			if self.stateB[fsm][state]['state'] is not('disabled'):
+				self.changeState(fsm, state, event)
 		return stateEvent
 
 	def changeState(self, fsm, state, event):
@@ -103,25 +115,10 @@ class fsmDisplay:
 		newState = self.shm2array(self.states[fsm][state])
 
 		#Change the memory segment
-		if fsm is 0:
-			print "Game FSM cannot be altered"
-		elif fsm is 1:
-			self.gcmFSM.set_body_state(newState)
-		elif fsm is 2:
-			print "Head FSM cannot be altered"
+		if fsm is 1:
+			self.gcmFSM.set_body_next_state(newState)
 		else:
 			print "Attempt to get state from undefined FSM"
-
-	def button_status(self):
-		#If Body fsm is in state bodyControl
-		if self.currentState[1] == "bodyControl":
-			#Make sure the buttons in bodyfsm are in active state
-			for state in range(len(self.stateB[1])):
-				self.stateB[1][state].config(state=NORMAL)
-		else:
-			#make sure buttons are disabled
-			for state in range(len(selt.stateB[1])):
-				self.stateB[1][state].config(state=DISABLED)
 
 	def highlight_current_state(self):
 		#Find current states and highlight them

@@ -1,16 +1,19 @@
 """
 ReadFSM class reads text of lua files and generates a list of states and a list of states with their transitions, using the 'get_states' and 'get_transitions' methods, respectively.
 
-*******
-You will need to change the path to the lua files since this is based on my account. I guess it would be the same, you just need to change the path to include your account name. Is there a better way to do this?
+Modified by adding NaoGoalie BodyFSM states, and getBGHfsm function changed to getBodyFSM, which returns a list containing NaoPlayer BodyFSM states and NaoGoalie BodyFSM states.
 """
 
 import os
 
-game = open("/home/" + str(os.getenv('USER')) + "/UPennalizers/Player/GameFSM/RoboCup/GameFSM.lua", "r").readlines()
-body = open("/home/" + str(os.getenv('USER')) + "/UPennalizers/Player/BodyFSM/NaoPlayer/BodyFSM.lua", "r").readlines()
-head = open("/home/" + str(os.getenv('USER')) + "/UPennalizers/Player/HeadFSM/NaoPlayer/HeadFSM.lua", "r").readlines()
+#Get user's ID
+usr = str(os.getenv('USER'))
 
+#NOTE!!! Works with code in Human-Controlled-Naos directory
+game = open("/home/"+usr+"/Human-Controlled-Naos/Player/GameFSM/RoboCup/GameFSM.lua", "r").readlines()
+body_player = open("/home/"+usr+"/Human-Controlled-Naos/Player/BodyFSM/NaoPlayer/BodyFSM.lua", "r").readlines()
+body_goalie = open("/home/"+usr+"/Human-Controlled-Naos/Player/BodyFSM/NaoGoalie/BodyFSM.lua", "r").readlines()
+head = open("/home/"+usr+"/Human-Controlled-Naos/Player/HeadFSM/NaoPlayer/HeadFSM.lua", "r").readlines()
 
 class ReadFSM:
 
@@ -65,29 +68,26 @@ class ReadFSM:
 		output3.append(i)
 
 	    return output3
-	    
-	    
-# initializing the class
-
+	
 
 def getBGHfsm():
 	g = ReadFSM(game)
-	b = ReadFSM(body)
+	bp = ReadFSM(body_player)
+	bg = ReadFSM(body_goalie)
 	h = ReadFSM(head)
 
-	# these are your lists!
+	# these are the lists of states
 	game_states = g.get_states()
-	game_trans = g.get_transitions()
 
-	body_states = b.get_states()
-	body_trans = b.get_transitions()
+	bodyPlayer_states = bp.get_states()
+	bodyGoalie_states = bg.get_states()
 
 	head_states = h.get_states()
 	head_trans = h.get_transitions()
 
-	fsm_states = [game_states, body_states, head_states]
+	fsm_player = [game_states, bodyPlayer_states, head_states]
+	fsm_goalie = [game_states, bodyGoalie_states, head_states]
+
+	fsm_states = [fsm_player,fsm_goalie]
 	return fsm_states
-
         
-
-
